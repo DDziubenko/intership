@@ -49,7 +49,11 @@ export default {
   border-radius: 8px;
   margin: 39.5px 0 0 30px;
 }
-
+@media screen and (max-width: 1100px) {
+  .shapes {
+    display: none;
+  }
+}
 .main_header h1 {
   font-family: Helvetica;
   font-size: 32px;

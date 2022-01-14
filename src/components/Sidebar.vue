@@ -69,6 +69,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
 .sidebar {
   background-color: #000000;
   flex: 0 0 270px;
@@ -229,5 +230,10 @@ export default defineComponent({
   right: 0;
   margin: 0 20px 0 auto;
   cursor: pointer;
+}
+@media screen and (max-width: 1100px) {
+  .sidebar {
+    display: none;
+  }
 }
 </style>
