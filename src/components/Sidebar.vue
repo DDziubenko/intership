@@ -22,7 +22,7 @@
       li Open Tasks
   .navigation
     .notifications
-      p {{notifications}}
+      p {{3}}
     ul
       li.menu MENU
       li.menu_li Home
@@ -38,7 +38,6 @@ export default defineComponent({
   name: 'Sidebar',
   data (): Record<string, any> {
     return {
-      notifications: 3,
       completedCount: 237,
       openCount: 10,
       User: {
@@ -47,6 +46,8 @@ export default defineComponent({
         status: 'Product Owner'
       }
     }
+  },
+  props: {
   },
   methods: {
     changeTasks () {

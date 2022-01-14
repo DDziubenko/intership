@@ -17,6 +17,7 @@ import Card from '../components/Card'
 import { defineComponent } from 'vue'
 import { VueDraggableNext } from 'vue-draggable-next'
 import moment from 'moment'
+import { mapState } from 'vuex'
 
 export default defineComponent({
   components: {
@@ -37,51 +38,12 @@ export default defineComponent({
         dateFormat: 'Y-m-d',
         mode: 'range'
       },
-      tasks: [
-        {
-          taskname: 'Bug Fix 1',
-          taskdescription: 'fix something important 1',
-          status: 'inprogress',
-          date: '2022-01-14 00:00'
-        },
-        {
-          taskname: 'Bug Fix 2',
-          taskdescription: 'fix something important 2',
-          status: 'done',
-          date: '2022-01-08 12:00'
-        },
-        {
-          taskname: 'Bug Fix 3',
-          taskdescription: 'fix something important 3',
-          status: 'inprogress',
-          date: '2022-01-08 12:00'
-        },
-        {
-          taskname: 'Bug Fix 4',
-          taskdescription: 'fix something important 4',
-          status: 'inprogress',
-          date: '2022-01-08 12:00'
-        }
-      ],
-      categories: [
-        {
-          name: 'To Do',
-          status: 'todo'
-        },
-        {
-          name: 'In Progress',
-          status: 'inprogress'
-        },
-        {
-          name: 'Done',
-          status: 'done'
-        }
-      ],
       draggedEl: null,
       dragging: false
     }
   },
   computed: {
+    ...mapState(['tasks', 'categories'])
   },
   methods: {
     showDetailsModal (element, index) {
@@ -104,7 +66,6 @@ export default defineComponent({
       }
     },
     filteredList (category) {
-      console.log(moment(this.searchDate))
       return this.tasks.filter(task => {
         return task.taskname.toLowerCase().includes(this.search.toLowerCase()) && task.status === category.status
       })

@@ -2,8 +2,8 @@
 .content_box
   transition-group(name="fade")
     button(class="addTask" @click="showAddModal") Add Task
-    .content(v-for='(element, index) in tasks' :key="element" @click="showDetailsModal(element, index)")
-      h1.task_name {{element.taskname}}
+    .content(v-for='(element, index) in tasks' :key="element")
+      h1.task_name(@click="showDetailsModal(element, index)") {{element.taskname}}
       span.time {{element.date}}
       .delete(@click='onDelete(index)') x
   tasksModal(v-show='isAddModalVisible' @close='closeAddModal' @add="AddTask")
@@ -16,6 +16,7 @@ import detailsModal from '@/components/modals/detailsModal.vue'
 import tasksModal from '../components/modals/tasksModal.vue'
 import { TasksInterface } from '../types/tasksInterface'
 import { defineComponent } from 'vue'
+import { mapState } from 'vuex'
 
 export default defineComponent({
   name: 'tasks',
@@ -28,9 +29,11 @@ export default defineComponent({
       currentItem: {},
       currentIndex: Number(),
       isDetailsModalVisible: false,
-      isAddModalVisible: false,
-      tasks: [] as TasksInterface []
+      isAddModalVisible: false
     }
+  },
+  computed: {
+    ...mapState(['tasks'])
   },
   methods: {
     // eslint-disable-next-line @typescript-eslint/ban-types
@@ -49,10 +52,10 @@ export default defineComponent({
       this.isAddModalVisible = false
     },
     onDelete (index: number) {
-      this.tasks.splice(index, 1)
+      this.$store.commit('deleteTask', index)
     },
     AddTask (newtask: TasksInterface) {
-      this.tasks.unshift(newtask)
+      this.$store.commit('addTask', newtask)
     }
   },
   created () {

@@ -25,7 +25,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/files',
         name: 'files',
-        component: () => import(/* webpackChunkName: "files" */ '../views/ComingSoon.vue')
+        component: () => import(/* webpackChunkName: "files" */ '../views/files.vue')
       },
       {
         path: '/calendar',
