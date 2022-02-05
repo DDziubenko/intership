@@ -1,33 +1,10 @@
 import { createStore } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
+import axios from 'axios'
 
 export default createStore({
   state: {
     tasks: [
-      {
-        taskname: 'Bug Fix 1',
-        taskdescription: 'fix something important 1',
-        status: 'inprogress',
-        date: '2022-01-14 00:00'
-      },
-      {
-        taskname: 'Bug Fix 2',
-        taskdescription: 'fix something important 2',
-        status: 'done',
-        date: '2022-01-08 12:00'
-      },
-      {
-        taskname: 'Bug Fix 3',
-        taskdescription: 'fix something important 3',
-        status: 'inprogress',
-        date: '2022-01-08 12:00'
-      },
-      {
-        taskname: 'Bug Fix 4',
-        taskdescription: 'fix something important 4',
-        status: 'inprogress',
-        date: '2022-01-08 12:00'
-      }
     ],
     categories: [
       {
@@ -71,14 +48,25 @@ export default createStore({
     ]
   },
   mutations: {
-    addTask (state, payload) {
-      state.tasks.unshift(payload)
-    },
-    deleteTask (state, payload: number) {
-      state.tasks.splice(payload, 1)
+    loadTasks (state, payload) {
+      axios.get('https://ancient-surf-2983.getsandbox.com/tasks').then(res => {
+        state.tasks = res.data
+      })
     }
   },
   actions: {
+    addTask (state, payload) {
+      axios.post('https://ancient-surf-2983.getsandbox.com/tasks', payload)
+      state.commit('loadTasks')
+    },
+    deleteTask (state, payload) {
+      axios.delete('https://ancient-surf-2983.getsandbox.com/tasks', payload)
+      state.commit('loadTasks')
+    },
+    editTask (state, payload) {
+      axios.put('https://ancient-surf-2983.getsandbox.com/tasks', payload)
+      state.commit('loadTasks')
+    }
   },
   modules: {
   },

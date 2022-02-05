@@ -6,18 +6,17 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { defineComponent } from 'vue'
+import { useStore } from 'vuex'
+import { defineComponent, computed } from 'vue'
 
 export default defineComponent({
   name: 'files',
-  computed: {
-    ...mapState(['activityContent'])
-  },
-  methods: {
-    log (e) {
-      console.log(e)
-    }
+  setup (props) {
+    const store = useStore()
+    const activityContent = computed(() => {
+      return store.state.activityContent
+    })
+    return { activityContent }
   }
 })
 </script>

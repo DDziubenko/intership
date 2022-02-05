@@ -1,11 +1,11 @@
 <template lang="pug">
-.draggableEl(:style="cardStyle" @click="cardStylef")
+.draggableEl(:style="cardStyle")
   | {{ item.taskname }}
   div( :class='dateStyle')
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 import moment from 'moment'
 
 export default defineComponent({
@@ -13,25 +13,26 @@ export default defineComponent({
   props: {
     item: Object as any
   },
-  computed: {
-    cardStyle (): { backgroundColor: string } {
+  setup (props) {
+    const cardStyle = computed(() => {
       let color = ''
-      if (this.item.status === 'inprogress') {
+      if (props.item.status === 'inprogress') {
         color = '#FFFF99'
-      } else if (this.item.status === 'done') {
+      } else if (props.item.status === 'done') {
         color = '#99FF99'
       }
       return { backgroundColor: color }
-    },
-    dateStyle () {
+    })
+    const dateStyle = computed(() => {
       let style = 'none'
-      if (moment(this.item.date).isBefore(moment().format('YYYY-MM-DD HH:mm')) && this.item.status !== 'done') {
+      if (moment(props.item.date).isBefore(moment().format('YYYY-MM-DD HH:mm')) && props.item.status !== 'done') {
         style = 'before'
-      } else if (moment(this.item.date).subtract(1, 'day').isBefore(moment().format('YYYY-MM-DD HH:mm')) && this.item.status !== 'done') {
+      } else if (moment(props.item.date).subtract(1, 'day').isBefore(moment().format('YYYY-MM-DD HH:mm')) && props.item.status !== 'done') {
         style = 'oneDayLeft'
       }
       return style
-    }
+    })
+    return { cardStyle, dateStyle }
   }
 })
 </script>

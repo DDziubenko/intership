@@ -14,10 +14,10 @@ import detailsModal from '@/components/modals/detailsModal.vue'
 import flatPickr from 'vue-flatpickr-component'
 import 'flatpickr/dist/flatpickr.css'
 import Card from '../components/Card'
-import { defineComponent } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import { VueDraggableNext } from 'vue-draggable-next'
 import moment from 'moment'
-import { mapState } from 'vuex'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   components: {
@@ -26,52 +26,73 @@ export default defineComponent({
     Card,
     draggable: VueDraggableNext
   },
-  data () {
-    return {
-      currentItem: {},
-      currentIndex: Number(),
-      isDetailsModalVisible: false,
-      enabled: true,
-      search: '',
-      searchDate: '',
-      config: {
-        dateFormat: 'Y-m-d',
-        mode: 'range'
-      },
-      draggedEl: null,
-      dragging: false
+  setup () {
+    const store = useStore()
+    const currentItem = ref({})
+    const currentIndex = ref(Number())
+    const isDetailsModalVisible = ref(false)
+    const enabled = ref(true)
+    const search = ref('')
+    const searchDate = ref('')
+    const firstDate = ref('')
+    const secondDate = ref('')
+    const config = {
+      dateFormat: 'Y-m-d',
+      mode: 'range'
     }
-  },
-  computed: {
-    ...mapState(['tasks', 'categories'])
-  },
-  methods: {
-    showDetailsModal (element, index) {
-      this.currentItem = element
-      this.currentIndex = index
-      this.isDetailsModalVisible = true
-    },
-    closeDetailsModal () {
-      this.isDetailsModalVisible = false
-    },
-    clickedElement (e) {
-      this.draggedEl = this.tasks.findIndex(item => item.taskdescription === e.taskdescription)
-    },
-    change (category) {
-      if (this.tasks[this.draggedEl].status === 'done' && category.status === 'todo') {
+    const draggedEl = ref(null)
+    const dragging = ref(false)
+
+    const tasks = computed(() => {
+      return store.state.tasks
+    })
+    const categories = computed(() => {
+      return store.state.categories
+    })
+
+    const showDetailsModal = (element, index) => {
+      currentItem.value = element
+      currentIndex.value = index
+      isDetailsModalVisible.value = true
+    }
+    const closeDetailsModal = () => {
+      isDetailsModalVisible.value = false
+    }
+    const clickedElement = (e) => {
+      draggedEl.value = tasks.value.findIndex(item => item.taskdescription === e.taskdescription)
+    }
+    const change = (category) => {
+      if (tasks.value[draggedEl.value].status === 'done' && category.status === 'todo') {
         return 0
       } else {
-        this.tasks[this.draggedEl].status = category.status
-        this.draggedEl = null
+        tasks.value[draggedEl.value].status = category.status
+        draggedEl.value = null
       }
-    },
-    filteredList (category) {
-      return this.tasks.filter(task => {
-        return task.taskname.toLowerCase().includes(this.search.toLowerCase()) && task.status === category.status
+    }
+    const filteredList = (category) => {
+      return tasks.value.filter(task => {
+        if (firstDate.value === '') {
+          return task.taskname.toLowerCase().includes(search.value.toLowerCase()) && task.status === category.status
+        } else {
+          return task.taskname.toLowerCase().includes(search.value.toLowerCase()) && task.status === category.status && moment(task.date).isBefore(moment(secondDate.value)) && moment(task.date).isAfter(moment(firstDate.value))
+        }
       })
-    },
-    clear () {
-      this.searchDate = ''
+    }
+    const clear = () => {
+      searchDate.value = ''
+      search.value = ''
+    }
+    return { showDetailsModal, clickedElement, change, clear, tasks, categories, currentItem, currentIndex, isDetailsModalVisible, enabled, search, searchDate, firstDate, secondDate, config, draggedEl, dragging, filteredList, closeDetailsModal }
+  },
+  watch: {
+    searchDate () {
+      if (this.searchDate === '') {
+        this.firstDate = ''
+        this.secondDate = ''
+      } else if (this.searchDate != null && this.searchDate.length > 10) {
+        this.firstDate = this.searchDate.slice(0, 10)
+        this.secondDate = this.searchDate.slice(14)
+      }
     }
   }
 })

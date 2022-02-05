@@ -15,8 +15,8 @@
 import detailsModal from '@/components/modals/detailsModal.vue'
 import tasksModal from '../components/modals/tasksModal.vue'
 import { TasksInterface } from '../types/tasksInterface'
-import { defineComponent } from 'vue'
-import { mapState } from 'vuex'
+import { defineComponent, computed, ref } from 'vue'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'tasks',
@@ -24,69 +24,38 @@ export default defineComponent({
     tasksModal,
     detailsModal
   },
-  data () {
-    return {
-      currentItem: {},
-      currentIndex: Number(),
-      isDetailsModalVisible: false,
-      isAddModalVisible: false
+  setup () {
+    const store = useStore()
+    const currentItem = ref({})
+    const currentIndex = ref(Number())
+    const isDetailsModalVisible = ref(false)
+    const isAddModalVisible = ref(false)
+
+    const tasks = computed(() => {
+      return store.state.tasks
+    })
+
+    const showDetailsModal = (element: any, index: number) => {
+      currentItem.value = element
+      currentIndex.value = index
+      isDetailsModalVisible.value = true
     }
-  },
-  computed: {
-    ...mapState(['tasks'])
-  },
-  methods: {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    showDetailsModal (element: object, index: number) {
-      this.currentItem = element
-      this.currentIndex = index
-      this.isDetailsModalVisible = true
-    },
-    closeDetailsModal () {
-      this.isDetailsModalVisible = false
-    },
-    showAddModal () {
-      this.isAddModalVisible = true
-    },
-    closeAddModal () {
-      this.isAddModalVisible = false
-    },
-    onDelete (index: number) {
-      this.$store.commit('deleteTask', index)
-    },
-    AddTask (newtask: TasksInterface) {
-      this.$store.commit('addTask', newtask)
+    const closeDetailsModal = () => {
+      isDetailsModalVisible.value = false
     }
-  },
-  created () {
-    setTimeout(() => {
-      this.tasks = [
-        {
-          taskname: 'Bug Fix 1',
-          taskdescription: 'fix something important 1',
-          status: 'inprogress',
-          date: '2022-01-08 12:00'
-        },
-        {
-          taskname: 'Bug Fix 2',
-          taskdescription: 'fix something important 2',
-          status: 'inprogress',
-          date: '2022-01-08 12:00'
-        },
-        {
-          taskname: 'Bug Fix 3',
-          taskdescription: 'fix something important 3',
-          status: 'inprogress',
-          date: '2022-01-08 12:00'
-        },
-        {
-          taskname: 'Bug Fix 4',
-          taskdescription: 'fix something important 4',
-          status: 'inprogress',
-          date: '2022-01-08 12:00'
-        }
-      ] as TasksInterface []
-    }, 500)
+    const showAddModal = () => {
+      isAddModalVisible.value = true
+    }
+    const closeAddModal = () => {
+      isAddModalVisible.value = false
+    }
+    const onDelete = (index: number) => {
+      store.dispatch('deleteTask', index)
+    }
+    const AddTask = (newtask: TasksInterface) => {
+      store.dispatch('addTask', newtask)
+    }
+    return { tasks, currentItem, currentIndex, isAddModalVisible, isDetailsModalVisible, showDetailsModal, closeDetailsModal, showAddModal, closeAddModal, onDelete, AddTask }
   }
 })
 </script>

@@ -14,26 +14,24 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { mapState } from 'vuex'
+import { defineComponent, computed } from 'vue'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'activity',
   components: {},
+  setup (props, { emit }) {
+    const changeNotif = (index: number) => {
+      emit('notifChanged', index)
+    }
+    const store = useStore()
+    const content = computed(() => {
+      return store.state.activityContent
+    })
+    return { changeNotif, content }
+  },
   data (): Record<string, any> {
     return {
-    }
-  },
-  computed: {
-    ...mapState({
-      content (state: any): any {
-        return state.activityContent
-      }
-    })
-  },
-  methods: {
-    changeNotif (index: number) {
-      this.$emit('notifChanged', index)
     }
   }
 })
