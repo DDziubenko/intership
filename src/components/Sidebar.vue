@@ -22,7 +22,7 @@
       li Open Tasks
   .navigation
     .notifications
-      p {{notifications}}
+      p {{3}}
     ul
       li.menu MENU
       li.menu_li Home
@@ -31,44 +31,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import router from '@/router'
 
 export default defineComponent({
   name: 'Sidebar',
-  data (): Record<string, any> {
-    return {
-      notifications: 3,
-      completedCount: 237,
-      openCount: 10,
-      User: {
-        image: require('@/assets/img/user_avatar.svg'),
-        name: 'Jean Gonzales',
-        status: 'Product Owner'
-      }
+  setup (props) {
+    const completedCount = ref(273)
+    const openCount = ref(10)
+    const User = {
+      image: require('@/assets/img/user_avatar.svg'),
+      name: 'Jean Gonzales',
+      status: 'Product Owner'
     }
-  },
-  methods: {
-    changeTasks () {
-      if (this.openCount > 0) {
+    const changeTasks = () => {
+      if (openCount.value > 0) {
         const submit = confirm('Are you sure you want to change the number of tasks?')
-        if (submit && this.openCount > 0) {
-          this.completedCount++
-          this.openCount--
+        if (submit && openCount.value > 0) {
+          completedCount.value++
+          openCount.value--
         }
       }
-    },
-    openTasks () {
-      if (this.openCount > 0) {
+    }
+    const openTasks = () => {
+      if (openCount.value > 0) {
         router.push('/')
       }
     }
+    return { completedCount, openCount, User, changeTasks, openTasks }
+  },
+  data (): Record<string, any> {
+    return {}
   }
 })
-
 </script>
 
 <style scoped>
+
 .sidebar {
   background-color: #000000;
   flex: 0 0 270px;
@@ -229,5 +228,10 @@ export default defineComponent({
   right: 0;
   margin: 0 20px 0 auto;
   cursor: pointer;
+}
+@media screen and (max-width: 1100px) {
+  .sidebar {
+    display: none;
+  }
 }
 </style>

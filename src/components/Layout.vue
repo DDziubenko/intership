@@ -4,7 +4,7 @@
   .container_column
     Header
     .content_zone
-      router-view(@notifСhanged='notifications=$event')
+      router-view
 </template>
 
 <script lang="ts">
@@ -12,7 +12,11 @@ import Header from '@/components/Header.vue'
 import Sidebar from '@/components/Sidebar.vue'
 export default {
   name: 'Layout',
-  components: { Header, Sidebar }
+  components: { Header, Sidebar },
+  data () {
+    return {
+    }
+  }
 }
 </script>
 

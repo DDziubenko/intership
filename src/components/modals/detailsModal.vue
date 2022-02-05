@@ -22,7 +22,7 @@
         p Done
       flat-pickr(class="date" :config="config" placeholder="Select Date" name="date" v-model="selectedItem.date" @input="isEdited")
       button.cancel(@click="isEdit=false") Cancel
-      button.save(v-show="isChanged" @click="Save") Save
+      button.save(v-show="isChanged" @click="Save(selectedItem)") Save
 </template>
 
 <script>
@@ -30,6 +30,7 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import flatPickr from 'vue-flatpickr-component'
 import 'flatpickr/dist/flatpickr.css'
+import { useStore } from 'vuex'
 export default {
   name: 'detailsModal',
   props: {
@@ -41,8 +42,13 @@ export default {
   },
 
   setup () {
+    const store = useStore()
+    const edit = (item) => {
+      store.dispatch('editTask', item)
+    }
     return {
-      v$: useVuelidate()
+      v$: useVuelidate(),
+      edit
     }
   },
   mounted () {
@@ -70,7 +76,8 @@ export default {
     }
   },
   methods: {
-    Save () {
+    Save (item) {
+      this.edit(item)
       this.close()
     },
     isEdited () {

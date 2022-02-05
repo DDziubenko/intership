@@ -1,106 +1,101 @@
 <template lang="pug">
 .content_box
-  .droppable(v-for="category in categories" :key="category.id" @drop="OnDrop($event, category.id)" @dragover.prevent @dragenter.prevent)
-    h1 {{ category.title }}
-    .draggable(v-for="(item, index) in items.filter(x => x.status === category.id)" @dragstart="OnDragStart($event, item)" draggable="true" @click="showDetailsModal(item, index)")
-      h2 {{ item.taskname }}
+  .search
+    input(class='searchByName' v-model="search" placeholder='Search')
+    flat-pickr(class="searchByDate" v-model='searchDate' :config="config" placeholder="Select Date" name="date")
+    button(class="clear" @click="clear") x
+  draggable.dragArea(v-for="(category) in categories" @drop='change(category)'  :list='filteredList(category)' :key="category.status" )
+    | {{category.name + ' ' + filteredList(category).length}}
+    Card(v-for='(element, index) in filteredList(category)' :item="element" :key='element.taskname' @dragstart="clickedElement(element)" @click="showDetailsModal(element, index)")
   detailsModal(:selectedItem="currentItem" :selectedIndex="currentIndex" v-show="isDetailsModalVisible" @close="closeDetailsModal")
 </template>
-
 <script>
 import detailsModal from '@/components/modals/detailsModal.vue'
-import { ref } from 'vue'
+import flatPickr from 'vue-flatpickr-component'
+import 'flatpickr/dist/flatpickr.css'
+import Card from '../components/Card'
+import { computed, defineComponent, ref } from 'vue'
+import { VueDraggableNext } from 'vue-draggable-next'
+import moment from 'moment'
+import { useStore } from 'vuex'
 
-export default {
-  name: 'kanban',
+export default defineComponent({
   components: {
-    detailsModal
+    detailsModal,
+    flatPickr,
+    Card,
+    draggable: VueDraggableNext
   },
   setup () {
-    const items = ref([
-      {
-        taskname: 'Bug Fix 1',
-        taskdescription: 'fix something important 1',
-        status: 'inprogress',
-        date: '2022-01-08 12:00'
-      },
-      {
-        taskname: 'Bug Fix 2',
-        taskdescription: 'fix something important 2',
-        status: 'inprogress',
-        date: '2022-01-08 12:00'
-      },
-      {
-        taskname: 'Bug Fix 3',
-        taskdescription: 'fix something important 3',
-        status: 'inprogress',
-        date: '2022-01-08 12:00'
-      },
-      {
-        taskname: 'Bug Fix 4',
-        taskdescription: 'fix something important 4',
-        status: 'inprogress',
-        date: '2022-01-08 12:00'
-      }
-    ])
-    const categories = ref([
-      {
-        id: 'todo',
-        title: 'To Do'
-      },
-      {
-        id: 'inprogress',
-        title: 'InProgress'
-      },
-      {
-        id: 'done',
-        title: 'Done'
-      }
-    ])
+    const store = useStore()
+    const currentItem = ref({})
+    const currentIndex = ref(Number())
+    const isDetailsModalVisible = ref(false)
+    const enabled = ref(true)
+    const search = ref('')
+    const searchDate = ref('')
+    const firstDate = ref('')
+    const secondDate = ref('')
+    const config = {
+      dateFormat: 'Y-m-d',
+      mode: 'range'
+    }
+    const draggedEl = ref(null)
+    const dragging = ref(false)
 
-    function OnDragStart (event, item) {
-      if (event.dataTransfer != null) {
-        event.dataTransfer.dropEffect = 'move'
-        event.dataTransfer.effectAllowed = 'move'
-        event.dataTransfer.setData('itemId', item.taskname)
-      }
-    }
-    function OnDrop (event, status) {
-      if (event.dataTransfer != null) {
-        const itemId = event.dataTransfer.getData('itemId')
-        items.value = items.value.map(x => {
-          if (x.taskname === itemId) {
-            if (x.status === 'done' && status === 'todo') {
-            } else { x.status = status }
-          }
-          return x
-        })
-      }
-    }
+    const tasks = computed(() => {
+      return store.state.tasks
+    })
+    const categories = computed(() => {
+      return store.state.categories
+    })
 
-    return {
-      items, categories, OnDragStart, OnDrop
+    const showDetailsModal = (element, index) => {
+      currentItem.value = element
+      currentIndex.value = index
+      isDetailsModalVisible.value = true
     }
-  },
-  data () {
-    return {
-      currentItem: Object,
-      currentIndex: Number(),
-      isDetailsModalVisible: false
+    const closeDetailsModal = () => {
+      isDetailsModalVisible.value = false
     }
+    const clickedElement = (e) => {
+      draggedEl.value = tasks.value.findIndex(item => item.taskdescription === e.taskdescription)
+    }
+    const change = (category) => {
+      if (tasks.value[draggedEl.value].status === 'done' && category.status === 'todo') {
+        return 0
+      } else {
+        tasks.value[draggedEl.value].status = category.status
+        draggedEl.value = null
+      }
+    }
+    const filteredList = (category) => {
+      return tasks.value.filter(task => {
+        if (firstDate.value === '') {
+          return task.taskname.toLowerCase().includes(search.value.toLowerCase()) && task.status === category.status
+        } else {
+          return task.taskname.toLowerCase().includes(search.value.toLowerCase()) && task.status === category.status && moment(task.date).isBefore(moment(secondDate.value)) && moment(task.date).isAfter(moment(firstDate.value))
+        }
+      })
+    }
+    const clear = () => {
+      searchDate.value = ''
+      search.value = ''
+    }
+    return { showDetailsModal, clickedElement, change, clear, tasks, categories, currentItem, currentIndex, isDetailsModalVisible, enabled, search, searchDate, firstDate, secondDate, config, draggedEl, dragging, filteredList, closeDetailsModal }
   },
-  methods: {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    showDetailsModal (item, index) {
-      this.currentItem = item
-      this.currentIndex = index
-      this.isDetailsModalVisible = true
-    },
-    closeDetailsModal () {
-      this.isDetailsModalVisible = false
+  watch: {
+    searchDate () {
+      if (this.searchDate === '') {
+        this.firstDate = ''
+        this.secondDate = ''
+      } else if (this.searchDate != null && this.searchDate.length > 10) {
+        this.firstDate = this.searchDate.slice(0, 10)
+        this.secondDate = this.searchDate.slice(14)
+      }
     }
   }
-}
+})
 </script>
 
 <style scoped>
@@ -115,32 +110,41 @@ export default {
   height: 80%;
   justify-content: center;
 }
-
-.droppable {
+.dragArea {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   padding: 10px;
   border-radius: 8px;
+  width: 100%;
   background-color: #DCDCDC;
   margin: 30px;
+  font-size: 24px;
 }
-
-.droppable h1 {
-  font-size: 18px;
-  align-self: center;
-  margin-bottom: 10px;
-}
-
-.draggable {
+.search {
   display: flex;
-  background-color: #ffffff;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
-
-.draggable h2 {
-  margin: 0;
+.searchByName {
+  padding: 2px;
+  margin: 0 0 0 30px;
+  font-size: 16px;
+  background-color: #9B9B9B;
+  border-radius: 8px;
+}
+.searchByDate {
+  padding: 2px;
+  margin: 0 0 0 10px;
+  background-color: #9B9B9B;
+  border-radius: 8px;
+}
+.clear{
+  background-color: #FF0000;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: #EAEAEA;
 }
 </style>
