@@ -11,7 +11,7 @@ export default defineComponent({
   name: 'App',
   setup () {
     const store = useStore()
-    store.commit('loadTasks', axios.get('https://ancient-surf-2983.getsandbox.com/tasks'))
+    store.commit('loadTasks', axios.get('https://tasktask.getsandbox.com/tasks'))
   }
 })
 </script>

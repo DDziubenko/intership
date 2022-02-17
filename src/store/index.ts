@@ -1,6 +1,7 @@
 import { createStore } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 import axios from 'axios'
+import { taskService } from '@/services/taskService'
 
 export default createStore({
   state: {
@@ -49,23 +50,21 @@ export default createStore({
   },
   mutations: {
     loadTasks (state, payload) {
-      axios.get('https://ancient-surf-2983.getsandbox.com/tasks').then(res => {
+      axios.get('https://tasktask.getsandbox.com/tasks').then(res => {
         state.tasks = res.data
       })
     }
   },
   actions: {
     addTask (state, payload) {
-      axios.post('https://ancient-surf-2983.getsandbox.com/tasks', payload)
-      state.commit('loadTasks')
+      return taskService.addTask(state, payload)
     },
     deleteTask (state, payload) {
-      axios.delete('https://ancient-surf-2983.getsandbox.com/tasks', payload)
-      state.commit('loadTasks')
+      return taskService.deleteTask(state, payload)
     },
     editTask (state, payload) {
-      axios.put('https://ancient-surf-2983.getsandbox.com/tasks', payload)
-      state.commit('loadTasks')
+      console.log(payload)
+      return taskService.editTask(state, payload)
     }
   },
   modules: {
