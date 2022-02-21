@@ -22,7 +22,7 @@
         p Done
       flat-pickr(class="date" :config="config" placeholder="Select Date" name="date" v-model="selectedItem.date" @input="isEdited")
       button.cancel(@click="isEdit=false") Cancel
-      button.save(v-show="isChanged" @click="Save(selectedItem)") Save
+      button.save(v-show="isChanged" @click="Save(selectedItem, selectedIndex)") Save
 </template>
 
 <script>
@@ -45,6 +45,7 @@ export default {
     const store = useStore()
     const edit = (item) => {
       store.dispatch('editTask', item)
+      console.log(item)
     }
     return {
       v$: useVuelidate(),

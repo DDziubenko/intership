@@ -1,11 +1,10 @@
 <template lang="pug" xmlns:v-bind="">
 .content_box
-  transition-group(name="fade")
-    button(class="addTask" @click="showAddModal") Add Task
-    .content(v-for='(element, index) in tasks' :key="element")
-      h1.task_name(@click="showDetailsModal(element, index)") {{element.taskname}}
-      span.time {{element.date}}
-      .delete(@click='onDelete(index)') x
+  button(class="addTask" @click="showAddModal") Add Task
+  .content(v-for='(element, index) in tasks' :key="element")
+    h1.task_name(@click="showDetailsModal(element, index)") {{element.taskname}}
+    span.time {{element.date}}
+    .delete(@click='onDelete(element)') x
   tasksModal(v-show='isAddModalVisible' @close='closeAddModal' @add="AddTask")
   detailsModal(:selectedItem="currentItem" :selectedIndex="currentIndex" v-show="isDetailsModalVisible" @close="closeDetailsModal")
 
@@ -49,8 +48,8 @@ export default defineComponent({
     const closeAddModal = () => {
       isAddModalVisible.value = false
     }
-    const onDelete = (index: number) => {
-      store.dispatch('deleteTask', index)
+    const onDelete = (el: TasksInterface) => {
+      store.dispatch('deleteTask', el)
     }
     const AddTask = (newtask: TasksInterface) => {
       store.dispatch('addTask', newtask)

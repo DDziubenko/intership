@@ -5,13 +5,12 @@ router-view
 <script lang="ts">
 import { useStore } from 'vuex'
 import { defineComponent } from 'vue'
-import axios from 'axios'
 
 export default defineComponent({
   name: 'App',
   setup () {
     const store = useStore()
-    store.commit('loadTasks', axios.get('https://ancient-surf-2983.getsandbox.com/tasks'))
+    store.dispatch('getTasks')
   }
 })
 </script>
