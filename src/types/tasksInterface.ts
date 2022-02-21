@@ -3,4 +3,5 @@ export interface TasksInterface {
   taskdescription: string
   status: 'todo' | 'inprogress' | 'done'
   date: string
+  id: string
 }

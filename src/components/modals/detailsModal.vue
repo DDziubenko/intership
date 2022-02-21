@@ -43,9 +43,9 @@ export default {
 
   setup () {
     const store = useStore()
-    const edit = (item, index) => {
-      store.dispatch('editTask', (item, index))
-      console.log(item, index)
+    const edit = (item) => {
+      store.dispatch('editTask', item)
+      console.log(item)
     }
     return {
       v$: useVuelidate(),
@@ -77,8 +77,8 @@ export default {
     }
   },
   methods: {
-    Save (item, index) {
-      this.edit(item, index)
+    Save (item) {
+      this.edit(item)
       this.close()
     },
     isEdited () {

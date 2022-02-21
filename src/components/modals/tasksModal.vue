@@ -22,9 +22,11 @@ import useVuelidate from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import flatPickr from 'vue-flatpickr-component'
 import 'flatpickr/dist/flatpickr.css'
+import { uuid } from 'vue-uuid'
 export default {
   name: 'tasksModal',
   components: {
+    uuid,
     flatPickr
   },
 
@@ -39,7 +41,8 @@ export default {
         taskname: '',
         taskdescription: '',
         status: 'todo',
-        date: ''
+        date: '',
+        id: ''
       },
       config: {
         enableTime: true,
@@ -63,6 +66,7 @@ export default {
       this.$emit('close')
     },
     addTask () {
+      this.newtask.id = uuid.v4()
       this.v$.$validate()
       if (!this.v$.$error) {
         this.$emit('add', this.newtask)
@@ -70,7 +74,8 @@ export default {
           taskname: '',
           taskdescription: '',
           status: 'todo',
-          date: ''
+          date: '',
+          id: ''
         }
         this.close()
       }

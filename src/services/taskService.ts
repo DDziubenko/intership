@@ -1,17 +1,17 @@
 import axios from 'axios'
+import { TasksInterface } from '@/types/tasksInterface'
 
 export const taskService = {
-  addTask (state:any, payload:any) {
-    axios.post('https://tasktask.getsandbox.com/tasks', payload)
-    state.commit('loadTasks')
+  addTask (state:any, payload: TasksInterface) {
+    return axios.post('https://tasktask.getsandbox.com/tasks', payload)
   },
-  deleteTask (state:any, payload:any) {
-    console.log(state, payload)
-    axios.delete('https://tasktask.getsandbox.com/tasks', payload)
-    state.commit('loadTasks')
+  deleteTask (state:any, payload: TasksInterface) {
+    return axios.delete('https://tasktask.getsandbox.com/tasks', { data: payload.id })
   },
   editTask (state:any, payload:any) {
-    axios.put('https://tasktask.getsandbox.com/tasks', payload)
-    state.commit('loadTasks')
+    return axios.put('https://tasktask.getsandbox.com/tasks', payload)
+  },
+  getTasks () {
+    return axios.get('https://tasktask.getsandbox.com/tasks')
   }
 }

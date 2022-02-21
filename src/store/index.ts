@@ -2,11 +2,11 @@ import { createStore } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 import axios from 'axios'
 import { taskService } from '@/services/taskService'
+import { TasksInterface } from '@/types/tasksInterface'
 
 export default createStore({
   state: {
-    tasks: [
-    ],
+    tasks: [] as TasksInterface[],
     categories: [
       {
         name: 'To Do',
@@ -49,21 +49,33 @@ export default createStore({
     ]
   },
   mutations: {
-    loadTasks (state, payload) {
-      axios.get('https://tasktask.getsandbox.com/tasks').then(res => {
-        state.tasks = res.data
-      })
+    refresh (state, payload) {
+      state.tasks = payload
+    },
+    add (state, payload: TasksInterface) {
+      state.tasks.push(payload)
+    },
+    del (state, payload) {
+      state.tasks.splice(state.tasks.findIndex(item => item.id === payload.id), 1)
     }
   },
   actions: {
+    getTasks (state) {
+      return taskService.getTasks().then(res => {
+        state.commit('refresh', res.data)
+      })
+    },
     addTask (state, payload) {
-      return taskService.addTask(state, payload)
+      return taskService.addTask(state, payload).then(() => {
+        state.commit('add', payload)
+      })
     },
     deleteTask (state, payload) {
-      return taskService.deleteTask(state, payload)
+      return taskService.deleteTask(state, payload).then(() => {
+        state.commit('del', payload)
+      })
     },
     editTask (state, payload) {
-      console.log(payload)
       return taskService.editTask(state, payload)
     }
   },
